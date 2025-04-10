@@ -1,10 +1,8 @@
 import numpy as np
 
 #élémentaire
-def quadNumRG(f,a,b,M):
-    x = np.linspace(a,b,M)
-    h = x[1] - x[0]
-    return sum(f(x[:-1]))*h
+def quadNumRG(f,a,b,):
+    return f(b) * (b-a)
 
 
 #composé non uniforme
