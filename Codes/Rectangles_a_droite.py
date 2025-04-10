@@ -6,7 +6,7 @@ def quadNumRD(f,a,b):
 
 
 #Composé non uniforme
-def quadNumRD(f,a,b,M):
+def quadNumRD(f,x):
     h = np.diff(x)
     return sum(f(x[1:])*)h
 
