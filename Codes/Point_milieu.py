@@ -1,5 +1,4 @@
 import numpy as np
-from matplotlib.pyplot import * 
 
 #élémentaire
 def quadraNumPM(f,a,b):
