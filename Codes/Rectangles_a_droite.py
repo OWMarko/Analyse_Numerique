@@ -1,6 +1,4 @@
 import numpy as np
-from matplotlib.pyplot import * 
-
 
 #élémentaire
 def quadNumRD(f,a,b):
