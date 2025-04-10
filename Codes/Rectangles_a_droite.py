@@ -1,5 +1,8 @@
-#élémentaire
+import numpy as np
+from matplotlib.pyplot import * 
 
+
+#élémentaire
 def quadNumRD(f,a,b):
   return (b-a)*f(a)
 
