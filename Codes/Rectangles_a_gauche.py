@@ -1,7 +1,7 @@
 import numpy as np
 
 #élémentaire
-def quadNumRG(f,a,b,):
+def quadNumRG(f,a,b):
     return f(b) * (b-a)
 
 
