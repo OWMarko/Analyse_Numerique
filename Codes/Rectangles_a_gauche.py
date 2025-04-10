@@ -1,5 +1,4 @@
 import numpy as np
-from matplotlib.pyplot import * 
 
 #élémentaire
 def quadNumRG(f,a,b,M):
