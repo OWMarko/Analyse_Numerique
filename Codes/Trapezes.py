@@ -6,7 +6,7 @@ def quadraNumTT(f,a,b):
 
 #Composé non uniforme
 def quadraNumTT_nnuni(f,x):
-  h = np.diff(x) #
+  h = np.diff(x) #vecteur qui contient les différences
   return sum(h * (f([x1:]+f(x[:-1]) /2 #sinon tu peux aussi mettre x[1:] - x[:-1] à la place du h
                     
 #Composé uniforme
