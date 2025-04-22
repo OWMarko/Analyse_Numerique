@@ -19,7 +19,6 @@ def quadNumRD(f,a,b,M):
 
 
 #Utilisation : 
-
 def f(x):
     return x**2
 
