@@ -89,8 +89,9 @@ Ligne 6 : on initalise la première valeur de notre tableau
 Ligne 7 Boucle : schema Euler Explicite
 Ligne 8 c'est quoi ce lambda ?  Pour passer de y[n] à y[n+1] nous devons satisfaire l'équation suivante : y[n+1] = y[n] + h*f(t[n+1],y[n+1])
 Et comme dit précédement, nous devons résoudre l'équation y[n+1], et nous savons que nous pouvons trouver les racines de la fonction caractéristique de la EDO, trouver les racines et résoudre.
-C'est ce que nous faisons ici, 
-Ligne 9 Return : on prend nos approximation et notre tableau des temps
+C'est ce que nous faisons ici, nous cherchons implicitement (car on retrouve n+1 des deux côtés) la racine de g. et si y_suiv correspond à notre racine, alors elle devient y[n+1]
+Linge 9 : On regarde si notre y_suiv correspond à la racine en utilisant la résolution numérique de scipy. Dans le contexte du TP et peut-être du contrôle, on devra le faire à la main ;) 
+Ligne 10 Return : on prend nos approximation et notre tableau des temps
 
 
 Return :
