@@ -18,7 +18,6 @@ def quadNumRG_Compose_Uniforme(f,a,b,M):
 
 
 #Utilisation 
-
 def f(x):
     return x**2
 
