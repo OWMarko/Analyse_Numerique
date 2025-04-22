@@ -1,6 +1,6 @@
 import numpy as np
 
-#élémentaire
+# élémentaire
 def quadraNumPM(f,a,b):
   return (b-a) * f((a+b)/2)
 
