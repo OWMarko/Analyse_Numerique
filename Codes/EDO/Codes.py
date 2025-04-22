@@ -1,11 +1,14 @@
 import numpy as np
-import matplotlib as mpltb
 
-def Eulerexplicite(x0, f, T, N): 
-    dt = T / (N - 1)
-    t = np.linspace(0, T, N)
-    x = np.zeros(N)
-    [x0] = x0
-    for k in range(1, N): 
-        xk = x[k-1] + dt * f(t[k-1], x[k-1])
-    return t, x
+def Euler_Explicite(t0, tf, f, y0, N):
+    h = (tf - t0) / N
+    t = np.linspace(t0, tf, N+1)
+    y0 = np.atleast_1d(y0)
+    m = y0.size
+    y = np.zeros((m, N+1))
+    y[:, 0] = y0
+    for n in range(N):
+        y[:, n+1] = y[:, n] + h * f(t[n], y[:, n])
+    return t, y
+
+
