@@ -80,3 +80,21 @@ plt.grid(True)
 plt.tight_layout()
 plt.show()
 
+#----------------------------------------------------------------------
+# Représentation graphique en log-log
+# On trace log(erreur) en fonction de log(h), ici h = T/Nvec avec Nvec = np.array([50, 100, 200, 400, 800])
+#----------------------------------------------------------------------
+
+plt.figure(3)
+plt.plot(np.log(T/Nvec), np.log(errexp), 'r+-', label='Euler explicite')
+plt.plot(np.log(T/Nvec), np.log(errCN), 'g+-', label='Crank Nicolson')
+
+# On ajoute des droites de référence pour différentes pentes :
+plt.plot(np.log(T/Nvec), np.log(T/Nvec), 'b', label='Droite de pente 1')    # Pente 1
+plt.plot(np.log(T/Nvec), 2. * np.log(T/Nvec), 'c', label='Droite de pente 2')  # Pente 2
+plt.plot(np.log(T/Nvec), 3. * np.log(T/Nvec), 'm', label='Droite de pente 3')  # Pente 3
+
+plt.title("Graphe log-log")
+plt.xlabel("log(N)")
+plt.legend()
+plt.show()
