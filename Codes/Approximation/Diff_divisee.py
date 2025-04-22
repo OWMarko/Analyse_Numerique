@@ -23,3 +23,5 @@ def diffdiv(x, y) :
         for j in range (1,i+1) :
             Tab[i,j] = (Tab[i,j-1] - Tab[i-1,j-1])/(x[i] - x[i-j]) #Notre formule du cours diff divisé notre i
     return Tab
+
+print(diffdiv(x,y))
