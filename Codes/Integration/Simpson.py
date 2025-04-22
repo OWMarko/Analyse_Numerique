@@ -1,6 +1,6 @@
 import numpy as np
 
-#élémentaire 
+# élémentaire 
 def quadraNumSimp(f,a,b):
   return (b-a)/6 * (f(a) + 4*f((b+a)/2) + f(b)
 
