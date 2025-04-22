@@ -144,3 +144,56 @@ Return :
       y : scalaire -> un tableau 1D de dimension (N,).
           système -> un tableau de dimension (m, N), où m = y0.size
     """
+
+def Cranck_Nicolson(t0,tf,f,y0,N,tol=1e-8,maxit=50):
+    h = (tf - t0) / (N - 1)
+    t = np.linspace(t0, tf, N)
+    y0 = np.atleast_1d(y0)
+    m = y0.size
+    y = np.zeros((m, N))
+    y[:, 0] = y0
+    for k in range(1, N):
+        y_suiv = y[:,k-1].copy()
+        for _ in range(maxit):
+            y_nouv = y[:, k-1] + (h / 2.) * ( f(t[k-1], y[:, k-1]) + f(t[k], y_suiv))
+            if np.linalg.norm(y_nouv - y_suiv) < tol:
+                y_suiv = y_nouv
+                break
+            y_suiv = y_nouv.copy()
+        y[:, k] = y_suiv
+    if m == 1:
+        return t, y[0, :]
+    return t, y
+
+"""
+Expliquons ce code : 
+
+Arguments :
+t0 : temps initial
+tf : temps final
+f  : notre EDO comme en cours pb de Cacuhy ->  f(t, y)
+y0 : condition initiale (peut être un scalaire ou un vecteur)
+ N  : nombre de pas
+tol  : tolérance pour l'itération de point fixe
+maxit: nombre maximum d'itérations à chaque pas
+
+Code :
+Ligne 1 : on calcule la longueur de chaque intervalle de chaque sous intervalle, on regarde la longueur totale : tf - t0, ensuite on divise par le nombre de sous intervalle.
+Ligne 2 : tableau des temps
+Ligne 3 : on regarde si on a un vecteur (système) ou un scalaire pour bien adapter notre 
+Ligne 4 : dimension de notre première valeur
+Ligne 5 : on crée notre vecteur (ou matrice) des résultats / approximations
+Ligne 6 : on initalise la première valeur de notre tableau
+Ligne 7 Boucle : schema Cranck Nicolson, on cherche à résoudre l'équation suivante : y[k] = y[k-1] + (h/2)*[ f(t[k-1], y[k-1]) + f(t[k], y[k])], pour trouver y[k], nous utiliserons la méthode du point fixe
+Ligne 8 : Pour essayer de trouver le bon candidat, on ne va pas jouer avec notre vrai vecteur donnée mais on va faire une copie de celui-ci pour s'assurer de ne pas modifier nos valeurs donnée y. Et on va commencer à k-1 et pas k.
+Ligne 9 : Maintenant on crée une boucle pour tester nos points fixe et s'ils correspondent bien. donc on applique notre schema avec notre y_suiv (en réalité c'est notre guess, on suppose pour voir)
+Ligne 10 : On vérifie s'il y a convergence et s'il correspond à nos conditions de point fixe, si oui -> 
+Ligne 11 : on pose que notre guess (le suiv) est bon et donc on pose que y_nouv = y_suiv ce qui revient à dire que y_suiv = y[:, k-1], et ainsi de suite grâce à notre boucle.
+Ligne 12 : Si on traite des scalaire, on applique le schema aussi et on retourne un vecteur 1D et pas un tableau de 2 dimension
+
+
+Return :
+      t : Vecteur temps de dimension (N,) (un array !!!!)
+      y : scalaire -> un tableau 1D de dimension (N,).
+          système -> un tableau de dimension (m, N), où m = y0.size
+    """
