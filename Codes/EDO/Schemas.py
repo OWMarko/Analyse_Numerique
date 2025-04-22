@@ -40,7 +40,7 @@ Return :
 """
 
 def Euler_Implicite_Newton(t0,tf,f,y0,N):
-    dt = T / (N - 1) 
+    h = T / (N - 1) 
     t = np.linspace(0, T, N) 
     x = np.zeros(N) 
     x[0] = x0 
@@ -99,10 +99,38 @@ Return :
       y : solution approchée, de dimension (m, N+1) si y0 est de dimension m.
 """
 
+def Point_Milieu(t0,tf,f,y0,N): 
+    h = (tf-t0)/ (N-1)
+    t = np.linspace(t0, tf, N)
+    y0 = np.atleast_1d(y0)
+    m = y0.size
+    y = np.zeros((m,N) 
+    y[:, 0] = y0
+    for k in range(1, N):
+        tk_mid = t[k-1] + h/2.
+        y_mid = y[:, k-1] + (h/ 2.) * f(t[k-1], y[:, k-1])
+        y[:, k] = y[:, k-1] + h* f(tk_mid, y_mid)    
+    if m == 1:
+        return t, x[0, :]
+    return t, x
+
+"""
+Expliquons ce code : 
+
+Arguments :
+t0 : temps initial
+tf : temps final
+f  : notre EDO comme en cours pb de Cacuhy ->  f(t, y)
+y0 : condition initiale (peut être un scalaire ou un vecteur)
+ N  : nombre de pas
+
+Code :
 
 
-
-
-    
-    
-
+  
+Retourne :
+      t : numpy.ndarray
+          Vecteur temps de dimension (N,).
+      x : Pour un problème scalaire, un tableau 1D de dimension (N,).
+          Pour un système, un tableau de dimension (m, N), où m est la dimension de y0.
+    """
