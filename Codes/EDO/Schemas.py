@@ -125,6 +125,12 @@ y0 : condition initiale (peut être un scalaire ou un vecteur)
  N  : nombre de pas
 
 Code :
+Ligne 1 : on calcule la longueur de chaque intervalle de chaque sous intervalle, on regarde la longueur totale : tf - t0, ensuite on divise par le nombre de sous intervalle.
+Ligne 2 : tableau des temps
+Ligne 3 : on regarde si on a un vecteur (système) ou un scalaire pour bien adapter notre 
+Ligne 4 : dimension de notre première valeur
+Ligne 5 : on crée notre vecteur (ou matrice) des résultats / approximations
+Ligne 6 : on initalise la première valeur de notre tableau 
 
 
   
