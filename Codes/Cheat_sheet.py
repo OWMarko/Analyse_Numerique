@@ -2,6 +2,46 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 #############################
+Python
+#############################
+
+#----------------------------------------------------------------------
+# Slicing liste[start:stop:step]
+#----------------------------------------------------------------------
+lst = [10, 20, 30, 40, 50]
+
+# Extraction avec [:-1]
+tronquee = lst[:-1]
+print(tronquee)  # Affiche : [10, 20, 30, 40]
+
+# Extraction avec [1:]
+tronquee = lst[1:]
+print(tronquee)  # Affiche : [20, 30, 40, 50]
+
+#----------------------------------------------------------------------
+# Affichage avec print, conversion et typage : utiliser type() pour vérifier le type.
+#----------------------------------------------------------------------
+
+var = 123
+print("La valeur de var est", var)
+print("Le type de var est", type(var))
+
+#----------------------------------------------------------------------
+# Utiliser enumerate() pour parcourir une liste avec l'indice.
+#----------------------------------------------------------------------
+
+colors = ['red', 'green', 'blue']
+for index, color in enumerate(colors):
+    print(f"Couleur {index} : {color}")
+
+#----------------------------------------------------------------------
+# Utiliser range() pour générer des séquences d'entiers dans des boucles.
+#----------------------------------------------------------------------
+
+for i in range(5):
+    print("Itération", i)
+
+#############################
 Numpy
 #############################
 
