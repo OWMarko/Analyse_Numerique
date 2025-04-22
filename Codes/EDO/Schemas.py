@@ -130,13 +130,17 @@ Ligne 2 : tableau des temps
 Ligne 3 : on regarde si on a un vecteur (système) ou un scalaire pour bien adapter notre 
 Ligne 4 : dimension de notre première valeur
 Ligne 5 : on crée notre vecteur (ou matrice) des résultats / approximations
-Ligne 6 : on initalise la première valeur de notre tableau 
+Ligne 6 : on initalise la première valeur de notre tableau
+Ligne 7 Boucle : schema Point Milieu 
+Linge 8 : on calcul le temps entre t[k] et t[n+1]
+Ligne 9 : l'idée est de ne pas avancer de 1 en 1 mais de trouver l'approximation entre n et n+1, on part de notre solution y[:, k-1] puis on calcule l'approxi entre ce point et y[:,k] 
+MAIS ! On calcule la dérivé de f (la pente, et la ED) en K-1 et pas en mid ou K !!!! Et la boucle itère le procédé.
+Ligne 10 : Maintenant on utilise nos "approximation et temps MID" pour trouver l'approximation de notre y en k (le pas suivant car remember : on était en k-1), on évalue la dérivé au point mid multiplié par notre discrétisation (subdiv)
+On remarque que c'est "simplement" Euler Explicite mais en calculant le mid entre deux points. 
 
 
-  
-Retourne :
-      t : numpy.ndarray
-          Vecteur temps de dimension (N,).
-      x : Pour un problème scalaire, un tableau 1D de dimension (N,).
-          Pour un système, un tableau de dimension (m, N), où m est la dimension de y0.
+Return :
+      t : Vecteur temps de dimension (N,) (un array !!!!)
+      y : scalaire -> un tableau 1D de dimension (N,).
+          système -> un tableau de dimension (m, N), où m = y0.size
     """
