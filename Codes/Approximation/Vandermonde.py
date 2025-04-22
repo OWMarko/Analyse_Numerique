@@ -15,3 +15,14 @@ def matrice_vandermonde_mieux(x):
     N = len(X)
     V = X[:, np.newaxis] ** np.arange(N)
     return V
+
+#Ainsi on peut résoudre notre problème et trouver nos inconnus : 
+
+def solvand(x,y) :
+    N = np.size(x)
+    NN = np.size(y)
+        if N != NN :
+       print("Probleme de taille entre les vecteurs")
+    Vander = Vandermonde(x)
+    a = alg.solve(Vander, y)
+    return a
