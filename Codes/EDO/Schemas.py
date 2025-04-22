@@ -213,3 +213,59 @@ def CrankNicolsonEx3(T,N,Y0):
     for n in range(0,N):
       y[:,n+1] = np.linalg.solve(np.eye(l)-1./2.*h*A,y[:,n]+1./2.*h*np.dot(A,y[:,n]))
     return t,y
+
+
+import numpy as np
+
+def Runge_Kutta(t0, tf, f, y0, N):
+    h = (tf - t0) / (N - 1)
+    t = np.linspace(t0, tf, N)
+    y0 = np.atleast_1d(y0)
+    m = y0.size
+    y = np.zeros((m, N))
+    y[:, 0] = y0
+    for k in range(1, N):
+        tk = t[k-1]
+        k1 = f(tk, y[:, k-1])
+        k2 = f(tk + h/2, y[:, k-1] + (h/2) * k1)
+        k3 = f(tk + h/2, y[:, k-1] + (h/2) * k2)
+        k4 = f(tk + h, y[:, k-1] + h * k3)
+        y[:, k] = y[:, k-1] + (h/6.) * (k1 + 2*k2 + 2*k3 + k4)
+    if m == 1:
+        return t, y[0, :]
+    return t, y
+
+   """
+ Expliquons ce code :
+ 
+Arguments :
+t0 : temps initial
+tf : temps final
+f  : notre EDO comme en cours pb de Cacuhy ->  f(t, y)
+y0 : condition initiale (peut être un scalaire ou un vecteur)
+ N  : nombre de pas
+
+
+Code :
+Ligne 1 : on calcule la longueur de chaque intervalle de chaque sous intervalle, on regarde la longueur totale : tf - t0, ensuite on divise par le nombre de sous intervalle.
+Ligne 2 : tableau des temps
+Ligne 3 : on regarde si on a un vecteur (système) ou un scalaire pour bien adapter notre 
+Ligne 4 : dimension de notre première valeur
+Ligne 5 : on crée notre vecteur (ou matrice) des résultats / approximations
+Ligne 6 : on initalise la première valeur de notre tableau
+Ligne 7 : Boucle sur les pas d'intégration.
+Ligne 8 : On définit tk = t[k-1], point de départ du pas.
+Ligne 9-12  :Calcul des pentes intermédiaires k1, k2, k3, k4 selon:
+               k1 = f(tk, y[k-1])
+               k2 = f(tk + h/2, y[k-1] + (h/2)*k1)
+               k3 = f(tk + h/2, y[k-1] + (h/2)*k2)
+               k4 = f(tk + h, y[k-1] + h*k3)
+Ligne 13 : On met à jour la solution en écrivant le schema de RK : y[k] = y[k-1] + (h/6)*(k1 + 2*k2 + 2*k3 + k4)
+Ligne 14 : Gestion du cas scalaire: si y0 est un scalaire (m==1), on retourne un tableau 1D.
+    
+Return :
+      t : Vecteur temps de dimension (N,) (un array !!!!)
+      y : scalaire -> un tableau 1D de dimension (N,).
+          système -> un tableau de dimension (m, N), où m = y0.size
+    """
+
