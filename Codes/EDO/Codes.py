@@ -38,8 +38,29 @@ Return :
       y : solution approchée, de dimension (m, N+1) si y0 est de dimension m.
 """
 
-
+def Euler_Implicite_Newton(t0,tf,f,y0,N):
+    dt = T / (N - 1) 
+    t = np.linspace(0, T, N) 
+    x = np.zeros(N) 
+    x[0] = x0 
+    for k in range(1, N): 
+        xk = x[k-1] 
+        tk = t[k] 
+        g = lambda y: y - xk - dt * f(tk, y) 
+        dg = lambda y: 1 - dt * df(tk, y) 
+        x[k] = Newton(xk, g, 10, 1e-10, 1e-10, tk, dt, xk) 
+    return t, x
 
 """
+Il existe plusieurs schéma d'Euler Implicite, certains utilisent l'algo de Newton, d'autres non. Dans le cours nous nous limitons à l'Euler Implicite générale, sans cas particulier comme dans l'exercice 1.2 du TP5. 
+Pour ce faire, nous appliquons le même raisonnemment qu'à l'Euler Explicite le seul détail qui change est la boucle, on résoud explicitement notre équation en y_(n+1). 
+"""
 
+def Euler_Implicite(t0,tf,f,y0,N):
+
+
+
+
+    
+    
 
