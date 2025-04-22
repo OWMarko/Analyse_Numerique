@@ -17,11 +17,11 @@ def Euler_Explicite(t0, tf, f, y0, N):
 Expliquons le code du Schéma d'Euler explicite :  : 
 
 Arguments :
-      t0 : temps initial
-      tf : temps final
-      f  : notre EDO comme en cours pb de Cacuhy ->  f(t, y)
-      y0 : condition initiale (peut être un scalaire ou un vecteur)
-      N  : nombre de pas
+t0 : temps initial
+tf : temps final
+f  : notre EDO comme en cours pb de Cacuhy ->  f(t, y)
+y0 : condition initiale (peut être un scalaire ou un vecteur)
+N  : nombre de pas
 
 Code : 
 Ligne 1 : on calcule la longueur de chaque intervalle de chaque sous intervalle, on regarde la longueur totale : tf - t0, ensuite on divise par le nombre de sous intervalle.
@@ -73,11 +73,11 @@ def Euler_Implicite(t0,tf,f,y0,N):
 Expliquons le code d'Euler Implicite.
 
 Arguments :
-      t0 : temps initial
-      tf : temps final
-      f  : notre EDO comme en cours pb de Cacuhy ->  f(t, y)
-      y0 : condition initiale (peut être un scalaire ou un vecteur)
-      N  : nombre de pas
+t0 : temps initial
+tf : temps final
+f  : notre EDO comme en cours pb de Cacuhy ->  f(t, y)
+y0 : condition initiale (peut être un scalaire ou un vecteur)
+ N  : nombre de pas
 
 Code : 
 Ligne 1 : on calcule la longueur de chaque intervalle de chaque sous intervalle, on regarde la longueur totale : tf - t0, ensuite on divise par le nombre de sous intervalle.
