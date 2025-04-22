@@ -197,3 +197,19 @@ Return :
       y : scalaire -> un tableau 1D de dimension (N,).
           système -> un tableau de dimension (m, N), où m = y0.size
     """
+
+#Du TP
+def CrankNicolsonEx3(T,N,Y0):
+    A=np.zeros((2,2))
+    A[0,0]=0
+    A[0,1]=1
+    A[1,0]=-k/m
+    A[1,1]=0
+    h = T/N
+    t=np.linspace(0,T,num=N+1)  
+    l=np.size(Y0)
+    y=np.zeros((l,N+1))
+    y[:,0]=Y0[:]
+    for n in range(0,N):
+      y[:,n+1] = np.linalg.solve(np.eye(l)-1./2.*h*A,y[:,n]+1./2.*h*np.dot(A,y[:,n]))
+    return t,y
