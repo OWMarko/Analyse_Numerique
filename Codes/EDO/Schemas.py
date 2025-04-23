@@ -143,7 +143,24 @@ Return :
       t : Vecteur temps de dimension (N,) (un array !!!!)
       y : scalaire -> un tableau 1D de dimension (N,).
           système -> un tableau de dimension (m, N), où m = y0.size
+
+Nous pouvons l'écrire de la manière suivante :          
     """
+
+def Point_Milieu(t0,tf,f,y0,N): 
+    h = (tf-t0)/ (N-1)
+    t = np.linspace(t0, tf, N)
+    y0 = np.atleast_1d(y0)
+    m = y0.size
+    y = np.zeros((m,N) 
+    y[:, 0] = y0
+    for k in range(N):
+        t_k = t[k]
+        y_k = y[k]
+        t_mid = t_k + h/2.
+        y_mid = y_k + (h/ 2.0) * f(t_k, y_k)
+        y[k+1] = y_k + h* f(t_mid, y_mid)    
+    return t, x
 
 def Cranck_Nicolson(t0,tf,f,y0,N,tol=1e-8,maxit=50):
     h = (tf - t0) / (N - 1)
