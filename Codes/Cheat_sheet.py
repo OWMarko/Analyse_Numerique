@@ -1,9 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-#############################
-Python
-#############################
 
 #----------------------------------------------------------------------
 # Slicing liste[start:stop:step]
@@ -41,10 +38,6 @@ for index, color in enumerate(colors):
 for i in range(5):
     print("Itération", i)
 
-#############################
-Numpy
-#############################
-
 #----------------------------------------------------------------------
 # Créer un tableau (array) à partir d’une liste ou d’une autre séquence.
 #----------------------------------------------------------------------
@@ -54,7 +47,7 @@ print("np.array:", a)  # Affiche : [1 2 3 4]
 
 
 #----------------------------------------------------------------------
-# Générer un tableau de nombres linéairement espacés.
+# Générer un tableau de nombres linéairement espacés / discrétisation
 #----------------------------------------------------------------------
 
 x_lin = np.linspace(0, 10, 100)  # 100 points entre 0 et 10
