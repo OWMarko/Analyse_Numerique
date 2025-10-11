@@ -34,7 +34,20 @@ E_alpha = sorted(E, key=lambda x: x[0], reverse = False)
 E_valeurs = sorted(E, key=lambda x: x[1], reverse=True)
 
 
+#Vecteurs propres et valeurs propres 
 
+#vecteur propre au rang 50 (0-based)
+v50 = eigvec[:, 50]
+
+#vecteur propre correspondant à la valeur propre la plus proche de v
+v = 2.345
+i = np.argmin(np.abs(eigval - v))
+v_from_value = eigvec[:, i]
+
+#50ème plus grande valeur propre (1-based notion de "50ème plus grande")
+k = 49  # 49 pour la 50ème en 0-based
+indices_desc = np.argsort(eigval)[::-1]
+v_50th_largest = eigvec[:, indices_desc[k]]
 
 
 
