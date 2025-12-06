@@ -12,30 +12,22 @@ def y_exact(t):
 Pour des soucis de visibilité et d'apprentissage, nous assumons que les fonctions Point_Milieu(t0, tf, f, y0, N) et Runge_Kutta(t0, tf, f, y0, N) sont déjà écrite dans notre code/
 """
 
-#==================================================
 # Paramètres de l'intégration et résolution
-#==================================================
 t0 = 0.0
 tf = 10.0
 y0 = 1.0
 N = 101  # Nombre de points (donc 100 sous-intervalles)
 
-#==================================================
 #On calcul pour les 2 schémas
-#==================================================
 t_pm, y_pm = Point_Milieu(t0, tf, f, y0, N)      
 t_rk, y_rk = Runge_Kutta(t0, tf, f, y0, N)
 
-#==================================================
+
 #On calcul pour la solution exact
-#==================================================
 t_exact = np.linspace(t0, tf, 1000)
 y_ex = y_exact(t_exact)
 
-#==================================================
 # Comparaison graphique des solutions
-#==================================================
-
 #On paramètre la taille du graph
 plt.figure(figsize=(10, 6))
 
