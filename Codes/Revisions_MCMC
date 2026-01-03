@@ -1,0 +1,1719 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import scipy.stats as st
+import scipy.integrate as integrate
+
+
+#%%
+# Exercice 1
+############
+
+## Question 2 : Construction de la fonction f_MC
+def f_MC(x):
+    # Fonction à intégrer : f(x) = cos(x^3) * exp(-x/2)
+    return(np.cos(x**3)*np.exp(-x/2))
+
+## Question 3 : Calcul d'une valeur approchée de l'intégrale par une méthode déterministe préexistante
+I = integrate.quad(f_MC, 0, 1)  # Intégrale calculée sur l'intervalle [0, 1]
+print(I[0])  # Affiche la valeur de l'intégrale
+
+
+#%%
+## Question 4 : Calcul d'une valeur approchée de l'intégrale par une première méthode Monte-Carlo
+def MC_1(n):
+    # Génère n tirages uniformes, applique f_MC, et calcule la moyenne
+    tirages = f_MC(np.random.rand(n)) # on pourrait aussi utiliser la fonction du package scipy.stats : tirages = f_MC(st.uniform.rvs(size=n))
+    approximation = np.mean(tirages)  # Moyenne des tirages
+    return(approximation)
+
+n = int(10**4)  # Nombre de tirages Monte-Carlo
+print(MC_1(n))  # Affiche l'estimation de l'intégrale
+
+#%%
+## Question 5 : Méthode Monte-Carlo avec une distribution exponentielle
+def MC_2(n):
+    # Génère n tirages selon une loi exponentielle de paramètre scale=2
+    expo = st.expon.rvs(size=n, scale=2)
+    # Calcul des contributions des tirages dans l'intégrale avec pondération
+    tirages = 2 * np.cos(expo**3) * (expo < 1)
+    approximation = np.mean(tirages)  # Moyenne des contributions
+    return(approximation)
+
+n = int(10**4)  # Nombre de tirages Monte-Carlo
+print(MC_2(n))  # Affiche l'estimation de l'intégrale
+
+
+
+
+
+#%%
+# Question 6 : Convergence des deux méthodes Monte-Carlo
+n = 5*10**5  # Nombre de tirages
+plage = range(1, n+1)  # Plage des indices pour les cumuls
+
+def MC_1b(n):
+    # Génère les tirages et calcule les moyennes cumulées
+    tirages = f_MC(np.random.rand(n))
+    approximation = np.cumsum(tirages) / np.arange(1, n+1)
+    return(approximation)
+
+def MC_2b(n):
+    # Tirages exponentiels et moyennes cumulées pour la deuxième méthode
+    expo = np.random.exponential(size=n, scale=2)
+    tirages = 2 * np.cos(expo**3) * (expo < 1)
+    approximation = np.cumsum(tirages) / np.arange(1, n+1)
+    return(approximation)
+
+# Calcul des valeurs cumulées pour les deux méthodes
+ValeursMC1 = MC_1b(n)
+ValeursMC2 = MC_2b(n)
+
+Val_initiale = 100  # Début de l'affichage (pour éviter les fluctuations initiales)
+plt.figure()
+plt.plot(plage[Val_initiale:], ValeursMC1[Val_initiale:], label='Méthode 1 (uniforme)')
+plt.plot(plage[Val_initiale:], ValeursMC2[Val_initiale:], label='Méthode 2 (exponentielle)')
+
+I = integrate.quad(f_MC, 0, 1)  # Valeur de référence de l'intégrale
+plt.axhline(I[0], xmin=0, xmax=n, color='red', linestyle='--', label='Valeur de référence')
+plt.legend()
+plt.xlabel('Nombre de tirages')
+plt.ylabel('Approximation de I')
+plt.show()
+
+
+
+
+
+#%%
+# Exercice 2
+############
+
+# Question 3 : Dessin des lattes pour la simulation de l'aiguille de Buffon
+plt.figure(figsize=(6,6))
+plt.xlim(-1, 11)  # Limites de l'axe x
+plt.ylim(-1, 11)  # Limites de l'axe y
+
+# Tracé des 11 segments verticaux (les lattes)
+for i in range(11):
+    plt.plot([i, i], [0, 10], 'k', linewidth=2)  # Chaque latte est un segment vertical noir
+#plt.show()
+
+
+
+
+#%%
+# Question 4 : Fonction pour lancer n aiguilles
+def aiguille(n):
+    """
+    Simule le lancer de n aiguilles.
+
+    Paramètres
+    ----------
+    n : Nombre d'aiguilles à lancer.
+        
+    Retour
+    ------
+    res : Tableau indiquant pour chaque aiguille si elle traverse une latte.
+    """
+    
+    u=np.random.rand(3,n)
+    # Suite des centre=(centre_x,centre_y) de l'aiguille tiré uniformément dans le carré [0, 10] x [0, 10]
+    centre_x = 10*u[0,]
+    centre_y = 10*u[1,]
+    # Angle de l'aiguille tiré uniformément entre 0 et pi
+    angle = np.pi*u[2,]
+    # Calcul des extrémités de l'aiguille
+    dx=0.5 * np.sin(angle)
+    dy=0.5 * np.cos(angle)
+    extremite_sup_x = centre_x + dx
+    extremite_sup_y = centre_y + dy
+    extremite_inf_x = centre_x - dx
+    extremite_inf_y = centre_y - dy
+    # Vérifie si chaque aiguille traverse une latte
+    res = np.floor(extremite_inf_x) != np.floor(extremite_sup_x)
+    
+    #Representation graphique
+    plt.figure(figsize=(6,6))
+    plt.xlim(-1, 11)  # Limites de l'axe x
+    plt.ylim(-1, 11)  # Limites de l'axe y
+    # Trace des 11 segments verticaux (les lattes)
+    for i in range(11):
+        plt.plot([i, i], [0, 10], 'k', linewidth=2)  # Chaque latte est un segment vertical noir
+    for i in range(n):
+        color = "red" if int(res[i]) == 1 else "black"  # Rouge si elle traverse, noir sinon
+        plt.plot([extremite_inf_x[i], extremite_sup_x[i]], [extremite_inf_y[i], extremite_sup_y[i]], color, linewidth=2)
+    return res  
+
+
+
+#%%
+# Question 5 : Estimation de pi
+
+n = int(10**2)  # Nombre d'aiguilles à lancer
+res=aiguille(n)  
+# Estimation de la valeur de Pi
+estimated_pi = 2 / np.mean(res)  # Estimation basée sur la probabilite de traverser une latte
+print("Valeur approchee de  \u03C0: ", estimated_pi)  # Affiche l'estimation de Pi, \u03C0 est le code Unicode du symbole "pi"
+
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+import scipy.stats as st
+import time
+
+#%%
+##Exercice 1
+############
+nbplot=4
+n=[10**i for i in range(2,2+nbplot)] #Calcul des valeurs de n successives
+
+for iter in n:
+    plt.figure()
+    plt.ylim(0,2) #Ouverture d'une nouvelle fenetre graphique
+    
+    echantillon = np.random.rand(iter) #Simulation des va
+    
+    # Histogramme des tirages
+    plt.hist(echantillon, bins=10, edgecolor="black", linewidth=0.5, density=True, alpha=0.3,  label=f'Histogramme (n={iter})')
+    
+    # Densité théorique de la loi uniforme sur ]0, 1[
+    plt.plot([0,1], [1,1], 'r-', lw=2, label='Densité théorique')
+    
+    # Légende et titre
+    plt.legend(loc='upper left')
+    plt.title('Loi uniforme sur ]0;1[', fontsize=16)
+    plt.show()
+
+
+
+
+
+
+
+
+
+#%%
+##Exercice 2
+############
+
+#Question 1
+## Simulation d'une loi exponentielle
+lambd=0.4
+def simuexp(n,lambd=lambd): # Attention la chaine de caracteres 'lambda' est reservee en Python
+    r=-np.log(np.random.rand(n))/lambd # autre maniere de simuler la loi uniforme sur ]0;1[ mais on pourrait utiliser st.uniform.rvs(size=n)
+    return(r)
+
+#Question 2
+
+# st.expon.cdf(x,scale=1/lambd) equivalent a lambda*np.exp(-lambd*x)
+
+# Histogramme pour lambda=.4
+
+
+nbplot=4
+n=[10**i for i in range(2,2+nbplot)] #Calcul des valeurs de n successives
+xmax=20
+
+for iter in n:
+    
+    plt.figure()
+    plt.xlim(0,xmax)
+    echantillon=simuexp(n=iter)
+    plt.hist(echantillon,bins=np.linspace(0,xmax,61), edgecolor="black", 
+        linewidth=0.5,density=True, alpha=0.6,label=f'Histogramme (n={iter})')
+    
+    #Trace de la densite exponentielle
+    absc=np.linspace(0,xmax,100)
+    ordo=lambd*np.exp(-lambd*absc)
+    plt.plot(absc,ordo,color='r', lw=2, label='Densité théorique')
+    
+    # Légende et titre
+    plt.legend(loc='upper right')
+    plt.title(f'Loi exponentielle E({lambd})', fontsize=16)
+    plt.show()
+    
+#%%
+#Question 3 Lois de Cauchy
+xzero=0
+a=1
+taille_ech=10000
+
+def simuCauchy(n,xzero=xzero,a=a): 
+    r=xzero+a*np.tan(np.pi*(np.random.rand(n)-0.5))
+    return(r)
+  
+echantillon=simuCauchy(n=taille_ech)  
+xmax= 15
+plt.figure()
+plt.xlim(-xmax,xmax)
+
+plt.hist(echantillon,bins=np.linspace(-xmax,xmax,101), edgecolor="black", 
+    linewidth=0.5,density=True, alpha=0.6,label=f'Histogramme (n={taille_ech})')
+    
+#Trace de la densite d une loi de Cauchy
+absc=np.linspace(-xmax,xmax,800)
+ordo=1/(np.pi*a*(1+(absc-xzero)**2/a**2))
+plt.plot(absc,ordo,color='r', lw=1.5, label='Densité théorique')
+    
+# Légende et titre
+plt.legend(loc='upper right')
+plt.title(f'Loi de Cauchy C({xzero},{a})', fontsize=16)
+plt.show()  
+
+#%%
+#Illustration de la non application de la LGN
+
+
+n=100000
+nbtraj=5
+plt.figure()
+for i in range(nbtraj):
+    res=np.cumsum(simuCauchy(n=n,xzero=xzero,a=50))/np.arange(1,n+1)
+    #Calcul de la moyenne empirique d'une suite de n vaiid de loi de Cauchy C(xzero,a
+    plt.plot(np.arange(1000,n+1),res[999:], lw=1, label='')
+
+plt.title(f'Evolution de la moy empirique de va de loi C({xzero},{a})', fontsize=16)
+plt.xlabel("n")
+plt.ylabel("$\overline{X}_n$")
+plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#%%
+##Exercice 3
+############
+
+#Question 1
+##Simulation d'une loi de Bernoulli
+
+def simubernoulli(n,p):
+    return (np.random.rand(n)>1-p)#.astype(int)
+
+#Question 2
+##Representation d'un echantillon
+
+#Simulation de l echantillon
+n=100
+p=0.4
+echantillon = simubernoulli(n, p)
+
+#Frequences observees
+res = np.bincount(echantillon,minlength=2)/n  #minlength=2 : cree au moins 2 categories
+
+# probabilites theoriques
+theo = [(1 - p), p]
+
+plt.figure()
+plt.ylim(0,1)
+# Creation du diagramme en barres
+labels = [0, 1]
+x = np.arange(len(labels))  # Position des barres
+
+# Diagramme des valeurs simulees
+plt.bar(x - 0.2, res, width=0.4, label='Proportions simulées', color='b')
+
+# Diagramme des valeurs theoriques
+plt.bar(x + 0.2, theo, width=0.4, label='Probabilités théoriques', color='r', alpha=0.7)
+
+# Labels et de la legende
+plt.xticks(x, labels)
+plt.title(f"Simulation de {n} tirages de loi B({p})")
+plt.legend()
+plt.show()
+
+
+
+
+
+
+
+
+
+
+
+#%%
+#Question 3
+## Simulation de n realisations independantes de loi binomiale B(N,p)
+#Rq : la commande st.binom.rvs(size,n, p) preprogrammee donne directement des va de loi binomiale
+def simubinomiale(n,N,p):
+    r=np.repeat(0,n) #vecteur des simulations
+    for i in range(n):
+        r[i]=np.sum(simubernoulli(N,p))
+    return(r)
+
+n=10000
+p=0.4
+N=10
+
+#Frequences observees
+res = np.bincount(simubinomiale(n,N,p),minlength=11)/n 
+
+# probabilites théoriques
+theo = [st.binom.pmf(k,N,p) for k in range(N+1)]
+
+plt.figure()
+plt.ylim(0,max(theo)*1.5)
+
+# Creation du diagramme en barres
+
+x = np.arange(N+1)  # Position des barres
+
+# Diagramme des valeurs simulees
+plt.bar(x - 0.2, res, width=0.4, label='Proportions simulees', color='b')
+
+# Diagramme des valeurs theoriques
+plt.bar(x + 0.2, theo, width=0.4, label='Probabilités theoriques', color='r', alpha=0.7)
+
+# Configuration des labels et de la legende
+#plt.xticks(x, labels)
+plt.title(f"Simulation de {n} tirages de loi B({N},{p})")
+#plt.xlabel("Valeurs simulées")
+#plt.ylabel("Fréquence")
+plt.legend()
+plt.show()
+
+
+
+#%%
+#Question 4
+## Simulation d'une loi geometrique 
+#Rq : la commande st.geom.rvs(size,n, p) preprogrammee donne directement des va de loi binomiale
+
+def simugeom(n,p):
+    r=np.repeat(0,n) #vecteur des simulations
+    for k in range(n):
+        i=1
+        while (simubernoulli(1,p)==0):
+            i=i+1
+        r[k]=i    
+    return(r)
+
+##Construction d'un diagramme en batons
+n=10000
+p=0.4
+xlim=10
+res = np.bincount(simugeom(n,p),minlength=xlim)/n #Proportion obtenue
+res=res[1:(xlim+1)]
+# probabilites théoriques
+theo = [st.geom.pmf(k,p) for k in range(1,xlim+1)]
+
+plt.figure()
+plt.ylim(0,max(theo)*1.5)
+# Creation du diagramme en batons
+
+x = np.arange(1,xlim+1)  # Position des bâtons
+
+# Diagramme des valeurs simulees
+plt.bar(x - 0.2, res, width=0.4, label='Proportions simulees', color='b')
+
+# Diagramme des valeurs theoriques
+plt.bar(x + 0.2, theo, width=0.4, label='Probabilités theoriques', color='r', alpha=0.7)
+
+# Configuration des labels et de la legende
+#plt.xticks(x, labels)
+plt.title(f"Simulation de {n} tirages de loi G({p})")
+#plt.xlabel("Valeurs simulées")
+#plt.ylabel("Fréquence")
+plt.legend()
+plt.show()
+
+#%%
+#Question 5
+## Simulation de la loi p_1=1/6, p_2=1/2, p_3=1/3
+
+def simQ5(n):#Par la methode de la fonction inverse
+  F=np.cumsum([1/6,1/2,1/3])
+  r=np.random.rand(n)
+  simu=(r<F[0])+2*((r<F[1])&(r>=F[0]))+3*(r>=F[1])
+  return(simu)
+
+#ou plus simplement en utilisant les fonctions preprogrammees
+n=1000
+valeurs = [1, 2, 3]
+probabilites = [1/6, 1/2, 1/3]
+simu = np.random.choice(a=valeurs, p=probabilites, size=n)
+
+res = np.bincount(simQ5(n),minlength=4)/n #Proportions obtenues
+res=res[1:4]
+plt.figure()
+plt.ylim(0,1)
+ 
+# Diagramme des valeurs simulées
+x=np.array(valeurs)
+plt.bar(x - 0.2, res, width=0.4, label=f'Proportions simulees (n={n})', color='b')
+
+# Diagramme des valeurs théoriques
+plt.bar(x + 0.2, probabilites, width=0.4, label='Probabilités theoriques', color='r', alpha=0.7)
+plt.title('Simulation de la loi de germe $p_1=1/6, p_2=1/2, p_3=1/3$')
+plt.legend()
+plt.show()
+
+#%%
+## Exercice 4
+#############
+
+#%%
+#Question 2
+
+## Simulation de la loi de Poisson via l'inverse de la fonction de repartition
+
+def simupoisson(nbiter, lambd=1):
+    u=np.random.rand(nbiter)
+    res=[]
+    for i in range(nbiter):
+        n=0
+        pn=np.exp(-lambd) #proba d'obtenir la valeur n
+        Fn=pn #proba d'obtenir une valeur <= n
+        while (Fn<u[i]):
+            n=n+1
+            pn=pn*lambd/n
+            Fn+=pn
+        res=res+[n]
+    return(res)
+
+#representation sur 0,...,nmax
+lambd=5
+nmax=10
+probas=[st.poisson.pmf(s,mu=lambd) for s in range(nmax+1)]
+nbiter=10000
+res = np.bincount(simupoisson(nbiter,lambd=lambd),minlength=nmax+1)/nbiter #Proportions obtenues
+res=res[:(nmax+1)]
+plt.figure()
+plt.ylim(0,max(probas)*1.5)
+ 
+# Diagramme des valeurs simulées
+x=np.array(range(nmax+1))
+plt.bar(x - 0.2, res, width=0.4, label=f'Proportions simulees (n={nbiter})', color='b')
+
+# Diagramme des valeurs théoriques
+plt.bar(x + 0.2, probas, width=0.4, label='Probabilités theoriques', color='r', alpha=0.7)
+plt.title(f'Simulation de la loi de Poisson P({lambd}) par inversion de F')
+plt.legend()
+plt.show()
+
+#%%
+## Simulation de la loi de Poisson via le processus de Poisson
+
+def simupoisson2(nbiter,lambd=1):
+    res=[]
+    e=st.expon.rvs(size=nbiter,scale=1/lambd)
+    for i in range(nbiter):
+        n=0 
+        t=e[i] #on tire la premiere exponentielle attention en python l'exponentielle est parametree par sa moyenne
+        while (t<=1):
+            n=n+1
+            t=t+st.expon.rvs(size=1,scale=1/lambd)
+        res=res+[n]
+    return(res)
+
+
+#representation sur 0,...,nmax
+lambd=5
+nmax=10
+probas=[st.poisson.pmf(s,mu=lambd) for s in range(nmax+1)]
+nbiter=10000
+res = np.bincount(simupoisson2(nbiter,lambd=lambd),minlength=nmax+1)/nbiter #Proportions obtenues
+res=res[:(nmax+1)]
+plt.figure()
+plt.ylim(0,max(probas)*1.5)
+ 
+# Diagramme des valeurs simulées
+x=np.array(range(nmax+1))
+plt.bar(x - 0.2, res, width=0.4, label=f'Proportions simulees (n={nbiter})', color='b')
+
+# Diagramme des valeurs théoriques
+plt.bar(x + 0.2, probas, width=0.4, label='Probabilités theoriques', color='r', alpha=0.7)
+plt.title(f"Simulation de la loi de Poisson P({lambd}) par somme d'exp")
+plt.legend()
+plt.show()
+
+#%%
+
+##Comparaison des temps d’execution sur n simulations
+
+# première m\'ethode
+n=10000
+lambd=10
+debut = time.time()
+simupoisson(n,lambd=lambd)
+fin = time.time()
+duree1=fin-debut
+print(f"Temps d'exécution de {n} appels a la fonction simupoisson : {duree1:.6f} secondes")
+
+#deuxième m\'ethopde
+debut = time.time()
+simupoisson2(n,lambd=lambd)
+fin = time.time()
+duree2=fin-debut
+print(f"Temps d'exécution de {n} appels a la fonction simupoisson2 : {duree2:.6f} secondes")
+
+#%%
+#On peut egalement utiliser la fonction timeit du paquet du même nom moins intuitive mais censement plus efficace :
+temps_methode_1 = timeit.timeit(stmt="simupoisson(nbiter=1,lambd=1)", setup="from __main__ import simupoisson", number=10000)
+temps_methode_2 = timeit.timeit(stmt="simupoisson2(nbiter=1,lambd=1)", setup="from __main__ import simupoisson2", number=10000)
+
+print(f"Temps méthode 1: {temps_methode_1:.6f} secondes")
+print(f"Temps méthode 2: {temps_methode_2:.6f} secondes")
+
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+
+
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+import scipy.stats as st
+import scipy.integrate as integrate
+import time
+
+#%%
+#Exercice 1
+###########
+
+#Question 2
+##simulation de la densit\'e uniforme sur le disque
+
+def simudisque(n):
+    x=[]
+    y=[]
+    for _ in range(n):
+        rejet=True
+        while rejet:
+            t=2*np.random.rand(2)-1
+            rejet=t[0]**2+t[1]**2>1
+        x.append(t[0])
+        y.append(t[1])
+    return(np.array(x),np.array(y))
+
+##repr\'esentation graphique
+
+
+
+#Creation du cercle
+plt.figure()
+plt.axis('equal') # Fixe le ratio des axes à 1 pour avoir des proportions égales
+angle=np.linspace(0,2*np.pi,100)
+plt.plot(np.cos(angle),np.sin(angle), color='blue')
+
+#simulation d'un vecteur de taille n d'uniformes sur le disque unite
+n=10000
+x,y=simudisque(n)
+plt.plot(x,y, marker='.', linestyle='', markersize=1,color="red")
+plt.title(f'{n} tirages de loi uniforme sur le disque unite')
+plt.show()
+
+
+
+
+
+#Comparaison avec un angle et un rayon uniforme
+#Creation du cercle
+plt.figure()
+plt.axis('equal') # Fixe le ratio des axes à 1 pour avoir des proportions égales
+angle=np.linspace(0,2*np.pi,100)
+plt.plot(np.cos(angle),np.sin(angle), color='blue')
+
+#simulation d'un vecteur de taille n d'uniformes sur le disque unite
+n=10000
+theta=st.uniform.rvs(size=n, loc=0, scale=2*np.pi)
+r=np.random.rand(n)
+plt.plot(r*np.cos(theta),r*np.sin(theta), marker='.', linestyle='', markersize=1,color="red")
+plt.title(f"{n} tirages de loi de rayon et d'angle uniformes sur le disque unite")
+plt.show()
+
+
+
+#%%
+#Exercice 2
+###########
+#Question 3
+def simugaussienne(n):
+    nbiter=int(np.ceil(n/2)) #on simule les v.a. 2 par 2
+    U,V=simudisque(nbiter)
+    R2=U**2+V**2 #rayon au carr\'e
+    Z=np.sqrt(-2*np.log(R2)/R2)
+    X=Z*U
+    Y=Z*V
+    return np.append(X, Y)
+
+## Representation graphique
+
+# simulation d'un vecteur de taille n
+n=10000
+res=simugaussienne(n)
+
+
+#Histogramme
+plt.figure()
+plt.xlim(-8,8) #permet d'avoir la meme echelle que pour la simulation suivante si on prend sigma=4
+plt.ylim(0,0.8)
+plt.hist(res,50,density=True, edgecolor='k', alpha=0.6,label=f'Histogramme (n={n})')
+#Densite
+absc=np.linspace(-4,4,200)
+ordo=(np.pi*2)**(-.5)*np.exp(-absc**2/2)
+plt.plot(absc,ordo,color='r', label="Densite theorique")
+plt.legend()
+plt.title("Loi normale N(0,1)")
+plt.show()
+
+#Pour des Gaussiennes N(mu, sigma**2), quelconques, on utilise la transformation affine Y=mu+sigma*X
+mu=1
+sigma=2
+resb=mu+sigma*np.array(res)
+#Histogramme
+plt.figure()
+plt.xlim(mu-4*sigma,mu+4*sigma)
+plt.ylim(0,0.8)
+plt.hist(resb,50,density=True, edgecolor='k', alpha=0.6,label=f'Histogramme (n={n})')
+#Densite
+absc=np.linspace(mu-4*sigma,mu+4*sigma,200)
+plt.plot(absc,st.norm.pdf(absc,loc=mu,scale=sigma),color='r', label="Densite theorique") #Ici on a utilise directement la densite pre-encodee de la loi N(mu,sigma^2) du package scipy.stats
+plt.legend()
+plt.title(f"Loi normale N({mu},{sigma**2})")
+plt.show()
+
+
+#%%
+#Exercice 3
+###########
+
+a=2
+nbiter=int(1E5)
+
+#Question 5
+# premiere methode
+
+def ratioalpha(x):
+    return(np.exp(-x))
+
+def simuf(a):
+    rejet=True
+    while rejet:
+        u=np.random.rand(2)
+        x=a*u[0]
+        rejet=ratioalpha(x)<u[1]
+    return(x)
+
+
+r=np.zeros(nbiter)
+for i in range(nbiter):
+    r[i]=simuf(a)
+
+# histogramme pour la loi de x
+plt.figure()
+plt.hist(r,bins=np.linspace(0,a,51),density=True, edgecolor='k', alpha=0.6,label='1ere méthode') #histogramme
+absc=np.arange(0,a,.01)
+
+# deuxieme methode
+
+
+def simuf2(a):
+    rejet=True
+    while rejet: 
+        x=np.random.exponential(scale=1,size=1)
+        rejet= (x>a) #Remarquons que la fonction alpha dans ce cas ne prend que les valeurs 0 et 1, il n'est donc pas necessaire de simuler une uniforme supplementaire pour le critere d'arret
+    return(x[0])
+
+r=np.zeros(nbiter)
+for i in range(nbiter):
+    r[i]=simuf2(a)
+
+# histogramme pour la loi de x
+
+plt.hist(r,bins=np.linspace(0,a,51),density=True,  edgecolor='k', alpha=0.6,label='2eme méthode') #histogramme
+absc=np.arange(0,a,.01)
+ordo=np.exp(-absc)/(1-np.exp(-a))
+plt.plot(absc,ordo,color='r', label='Densité théorique')
+plt.legend()
+plt.title(f"Simulation de {nbiter} réalisations de la loi pour a={a}")
+plt.show()
+
+#%%
+# comparaison des temps d'execution
+
+Val_a=np.arange(0.4,2,0.1)
+
+N=100000
+duree1=[]
+duree2=[]
+
+for a in Val_a:
+    start = time.time()
+    for i in range(N):
+        simuf(a=a)
+    end = time.time()
+    duree1.append(end-start)
+    start = time.time()
+    for i in range(N):
+        simuf2(a=a)
+    end = time.time()
+    duree2.append(end-start)
+plt.figure()
+plt.plot(Val_a,duree1,marker='+',label="Première méthode")
+plt.plot(Val_a,duree2,marker='+',label="Seconde méthode")
+plt.title(f"Comparaison des temps d'exécution pour {N} tirages")
+plt.xlabel('Valeur du paramètre a')
+plt.ylabel("Tps d'execution (s)")
+plt.legend()
+plt.show()
+
+
+
+#%%
+#Exercice 4
+###########
+
+
+#Question 2
+## Simulation de la gaussienne
+
+def simugaussienne2():
+    rejet=True
+    while rejet:
+        x=np.random.exponential(scale=1,size=2)
+        rejet=(2*x[1]<=(1-x[0])**2)
+    s=st.binom.rvs(size=1,n=1, p=0.5)
+    return((2*s[0]-1)*x[0])
+
+# simulation d’un vecteur de taille n
+n=10000
+res=[]
+for i in range(n):
+    res.append(simugaussienne2())
+
+
+#Histogramme
+plt.figure()
+plt.xlim(-4,4)
+plt.ylim(0,0.7)
+plt.hist(res,50,density=True, edgecolor='k', alpha=0.6,label=f'Histogramme (n={n})')
+#Densite
+absc=np.linspace(-4,4,100)
+ordo=(np.pi*2)**(-.5)*np.exp(-absc**2/2)
+plt.plot(absc,ordo,color='r', label="Densite theorique")
+plt.legend()
+plt.title("Loi normale N(0,1)")
+plt.show()
+
+#%%
+##Exercice 5
+############
+
+#Question 5
+
+
+
+def ratioalpha(x,lambd):
+    return(np.exp(-(x-lambd)**2/2))
+
+def simuf(lambd):
+    rejet=True
+    while rejet:
+        u=np.random.rand(2)
+        y=-np.log(u[0])/lambd  #construction d'une va de loi exponentielle de parametre lambd (indep de u[1]'
+        rejet=(ratioalpha(y,lambd=lambd)<u[1])
+    return(y)
+
+nbiter=20000
+res1=np.zeros(nbiter)
+res2=np.zeros(nbiter)
+
+
+for i in range(nbiter):
+    res1[i]=simuf(lambd=1)
+    res2[i]=simuf(lambd=2)
+
+# histogrammes pour la loi de x
+plt.figure()
+counts, bins, patches =plt.hist(res1,bins=50,density=True, edgecolor='k', alpha=0.5, label="$\lambda=1$")
+plt.hist(res2,bins=bins, density=True, edgecolor='k', alpha=0.5, label="$\lambda=2$") #on récupère les bornes des classes de l'histogramme precedent pour avoir un graphique plus lisible
+
+absc=np.arange(0,5,.01)
+ordo=np.sqrt(2/np.pi)*np.exp(-absc**2/2)
+plt.plot(absc,ordo,color="r", label="Densité théorique")
+plt.title(f'Simulation de {nbiter} réalisations de la val. abs. de la loi N(0,1)')
+plt.legend()
+plt.show()
+
+# comparaison des temps d'execution
+#%%
+
+#%%
+# comparaison des temps d'execution
+
+Val_lambd=np.arange(0.4,2,0.1)
+
+N=100000
+duree=[]
+
+for lambd in Val_lambd:
+    start = time.time()
+    for i in range(N):
+        simuf(lambd=lambd)
+    end = time.time()
+    duree.append(end-start)
+plt.figure()
+plt.plot(Val_lambd,duree,marker='+')
+plt.title(f"Comparaison des temps d'exécution pour {N} tirages")
+plt.xlabel('Valeur du paramètre $\lambda$')
+plt.ylabel("Tps d'execution (s)")
+plt.show()
+
+
+
+#%%
+##Exercice 6
+############
+nbiter=20000
+#Question 2
+loc1=0
+loc2=3/2
+sig1=1
+sig2=0.2
+
+
+def simuh():
+    rejet=True
+    while rejet:
+        x=np.random.normal(loc=loc1,scale=sig1,size=1)
+        y=np.random.normal(loc=loc2,scale=sig2,size=1)
+        u=np.random.rand(2)
+        rejet=((u[0]*st.norm.pdf(x,loc=loc1,scale=sig1)>st.norm.pdf(x,loc=loc2,scale=sig2))&(u[1]*st.norm.pdf(y,loc=loc2,scale=sig2)>st.norm.pdf(y,loc=loc1,scale=sig1)))
+    z=x
+    if (u[0]*st.norm.pdf(x,loc=loc1,scale=sig1)<=st.norm.pdf(x,loc=loc2,scale=sig2)):
+        z=y
+    return(z[0])
+
+
+r=np.zeros(nbiter)
+for i in range(nbiter):
+    r[i]=simuh()
+
+def h(x,loc1=loc1,loc2=loc2,sig1=sig1,sig2=sig2):
+    y=np.maximum(st.norm.pdf(x,loc=loc1,scale=sig1),st.norm.pdf(x,loc=loc2,scale=sig2))
+    return y
+
+
+
+
+absc=np.arange(loc1-3*sig1,loc2+3*sig2,.01)
+I=integrate.quad(h, loc1-10*sig1,loc2+10*sig2)	#Valeur de reference
+ordo=h(absc)/I[0]
+
+# histogramme pour la loi de x
+plt.figure()
+plt.hist(r,bins=np.linspace(loc1-3*sig1,loc2+3*sig2,61),density=True, edgecolor='k',alpha=0.6,label="Histogramme") #histogramme
+plt.plot(absc,ordo,color='r',label='densite theorique')
+plt.title(f'Simulation de {nbiter} tirages de la loi')
+plt.legend()
+plt.show()
+
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+import numpy as np
+import matplotlib.pyplot as plt
+import scipy.stats as st
+import scipy.integrate as integrate
+
+
+#%%
+## Exercice 1
+#############
+
+## Question 2
+def MC_p(lambd,n): # Calcul de la proportion des U_i <= lambda
+    r=(np.random.rand(n)<=lambd)
+    return(np.mean(r))
+
+
+def MC_test(M,lambd,n):
+    res=np.zeros(M)
+    for i in range(M):
+        res[i]=MC_p(lambd,n)
+    return(res)
+
+
+
+## Question 3
+
+
+n=2000
+M=10**4
+lambd=np.linspace(0.1,0.9,9)
+largeur=1.96/(2*np.sqrt(n)) #demi-largeurs des intervalles
+res=[]
+for para in lambd:
+    temp=MC_test(M,para,n)
+    res.append(np.mean((np.abs(temp-para)<=largeur))) #Calcul de la proportion d'intervalles contenant lambda
+
+# Construction du graphique
+plt.figure()
+plt.ylim(0.7,1.02)
+plt.plot(lambd,res, marker='+', label=f'Proportion empirique, M={M}, n={n}')
+plt.axhline(0.95, color='red', linestyle='--', label='Valeur de référence, 1-alpha=0.95')
+plt.title('Proportion de réalisations de $I_n$ contenant $\lambda$')
+plt.xlabel('$\lambda$')
+plt.ylabel('Prop. de réussite')
+plt.legend()
+plt.show()
+
+#%%
+
+n_vec=np.array([5,10,50,100,500,1000])
+M=10**4
+lambd=[0.1,0.25,0.5]
+plt.figure()
+plt.ylim(0.7,1.02)
+
+res=[[] for _ in range(len(lambd))]
+for i in range(len(lambd)):
+    for n in n_vec:
+        temp=MC_test(M,lambd[i],n)
+        largeur=1.96/(2*np.sqrt(n)) #demi-largeurs des intervalles
+        res[i].append(np.mean((np.abs(temp-lambd[i])<=largeur).astype(int))) #Calcul de la proportion d'intervalles contenant lambda
+    plt.plot(n_vec,res[i], marker='+', label=f'Proportion empirique, M={M}, lambda={lambd[i]}')
+
+plt.axhline(0.95, color='red', linestyle='--', label='Valeur de référence, 1-alpha=0.95')
+plt.title('Proportion de réalisations de $I_n$ contenant $\lambda$')
+plt.xlabel('$\lambda$')
+plt.ylabel('Prop. de réussite')
+plt.legend(loc='lower center')
+plt.show()
+
+#%%
+## Exercice 2
+#############
+
+## Question 1  Calcul approchee de l'intégrale par une methode deterministe pre programmee consideree comme la vraie valeur de l integrale
+
+def f_MC(x):
+    return(np.log(1+x**2)*np.exp(-x**2))
+
+I=integrate.quad(f_MC, 0,1)
+print(I)
+
+
+
+#%%
+## Question 2 Méthode Monte-Carlo 1 avec intervalles de confiance
+
+q=st.norm.ppf(0.975) # Quantile pour un intervalle de confiance centree à 95%
+
+def MC_1(n,q=q):
+    tirages=f_MC(st.uniform.rvs(size=n))
+    approximation=np.mean(tirages)
+    ecart_type=np.std(tirages,ddof=1) #ddof=1 permet de diviser par n-1 et non par n dans la formule de la variance empirique
+    erreur=q*ecart_type*n**(-1/2)
+    b_inf=approximation-erreur
+    b_sup=approximation+erreur
+    return([approximation,ecart_type,erreur,b_inf,b_sup])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+res=MC_1(10**4,q=q)
+
+print(f"Approximation de I : {res[0]}\nEcart_type : {res[1]}\nLargeur de l'intervalle : {2*res[2]}")
+
+n=10**4
+M=10**4
+res=np.zeros(5*M).reshape(M,5)
+for i in range(M):
+    res[i,:]=MC_1(n,q)
+
+#Proportion d'intervalles contenant la vraie valeur de l'intégrale
+print("Proportion d'intervalles contenant la 'vraie' valeur de l'intégrale sur", M, "réalisations :",np.mean((np.abs(I[0]-res[:,0])<res[:,2])))
+
+
+
+
+
+
+#%%
+## Question 3 Méthode Monte-Carlo 2 avec intervalles de confiance
+
+def MC_2(n,q=q):
+    g=st.norm.rvs(size=n,loc=0,scale=np.sqrt(0.5))
+    tirages=np.sqrt(np.pi)*np.log(1+g**2)*((g>0)&(g<1)).astype(int)
+    approximation=np.mean(tirages)
+    ecart_type=np.std(tirages,ddof=1)
+    erreur=q*ecart_type*n**(-1/2)
+    b_inf=approximation-erreur
+    b_sup=approximation+erreur
+    return([approximation,ecart_type,erreur,b_inf,b_sup])
+
+res=MC_2(10**4,q=q)
+
+print(f"Approximation de I : {res[0]}\nEcart_type : {res[1]}\nLargeur de l'intervalle : {2*res[2]}")
+
+n=int(10**4)
+M=int(10**4)
+res=np.zeros(5*M).reshape(M,5)
+for i in range(M):
+    res[i,:]=MC_2(n,q)
+
+#on recupere la premiere et la troisieme colonnes
+print("Proportion d'intervalles contenant la 'vraie' valeur de l'intégrale sur", M, "réalisations :", np.mean((np.abs(I[0]-res[:,0])<res[:,2]).astype(int)))
+
+
+
+#%%
+## Exercice 3
+#############
+
+## Question 2
+
+def f(x):
+    return np.exp(-x**2)
+
+# Méthode Monte-Carlo simple
+def MC_simple(n,fun):
+    U = np.random.rand(n)
+    fU=fun(U)
+    return [np.mean(fU),np.var(fU,ddof=1)]
+
+
+# Méthode Monte-Carlo antithétique
+def MC_AT(n,fun):
+    U = np.random.rand(n)
+    fU=(fun(U) + fun(1 - U)) / 2
+    return [np.mean(fU),np.var(fU,ddof=1)]
+
+# Simulations
+n = 100000  # Nombre de tirages
+
+# Monte-Carlo simple
+[est_simple,var_simple] = MC_simple(n,fun=f)
+
+# Monte-Carlo antithétique
+[est_AT,var_AT] = MC_AT(n,fun=f)
+
+print(f"Valeur calculée avec MC simple : {est_simple}")
+print(f"Variance empirique Monte-Carlo simple pour la 1ere fonction : {var_simple**2}")
+print(f"Valeur calculée avec MC antithétique : {est_AT}")
+print(f"Variance empirique Monte-Carlo antithétique pour la 1ere fonction : {var_AT**2}")
+
+#%%
+## Question 3
+
+def g(x):
+    return np.exp(-(x - 0.5)**2)
+
+# Simulations
+n = 10000  # Nombre de tirages
+
+# Monte-Carlo simple
+[est_simple,var_simple] = MC_simple(n,fun=g)
+
+# Monte-Carlo antithétique
+[est_AT,var_AT] = MC_AT(n,fun=g)
+
+print(f"Variance empirique Monte-Carlo simple pour la 2eme fonction : {var_simple**2}")
+print(f"Variance empirique Monte-Carlo antithétique pour la 2eme fonction : {var_AT**2}")
+
+
+#%%
+## Question 4
+
+def phi(u):
+    res=(1.5 - u)* (u >= 0.5)+ (0.5 - u)*(u < 0.5)
+    return res
+
+## Question 5
+
+# Méthode Monte-Carlo antithétique pour estimer J
+def MC_phi(n,fun):
+    U = st.uniform.rvs(size=n)
+    fU=(fun(U) + fun(phi(U))) / 2
+    return [np.mean(fU),np.std(fU,ddof=1)]
+
+
+# Simulations
+n = 10000  # Nombre de tirages Monte-Carlo
+
+
+# Monte-Carlo simple
+[est_simple,std_simple] = MC_simple(n,fun=g)
+
+# Monte-Carlo avec la fonction phi
+[est_phi,std_phi] = MC_phi(n,fun=g)
+
+# Affichage des résultats
+print(f"Variance empirique Monte-Carlo simple pour la 2eme fonction : {std_simple**2}")
+print(f"Variance empirique Monte-Carlo utilisant la fonction phi pour la 2eme fonction : {std_phi**2}")
+
+
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+#TP5
+#EXERCICE 1
+
+import numpy as np
+import matplotlib.pyplot as plt
+import scipy.linalg
+
+# --- Données de l'exercice ---
+P = np.array([
+    [0.8, 0.05, 0.15],
+    [0.1, 0.7,  0.2 ],
+    [0.1, 0.1,  0.8 ]
+])
+etats = np.array([0, 1, 2]) # 0:A, 1:B, 2:C
+etats_noms = ['A', 'B', 'C']
+
+# --- QUESTION 2 : Fonction de simulation simple ---
+def simule_loi(n, loi_proba):
+    """Simule n réalisations selon une loi donnée."""
+    return np.random.choice(len(loi_proba), size=n, p=loi_proba)
+
+# --- QUESTION 3 : Simulation de trajectoire ---
+def simulation_chaine(n, loi_initiale, P):
+    """
+    Simule une trajectoire de longueur n (donc n+1 états).
+    Arg:
+        loi_initiale: vecteur de probabilité (ex: [0.9, 0.1, 0])
+        P: Matrice de transition
+    """
+    traj = np.zeros(n + 1, dtype=int)
+    N_etats = P.shape[0]
+    
+    # 1. État initial X0
+    traj[0] = np.random.choice(N_etats, p=loi_initiale)
+    
+    # 2. Boucle de transition
+    for k in range(n):
+        etat_courant = traj[k]
+        # On tire le prochain état selon la ligne correspondante de P
+        traj[k+1] = np.random.choice(N_etats, p=P[etat_courant])
+        
+    return traj
+
+# Paramètres
+n = 100
+mu0 = np.array([0.9, 0.1, 0.0]) # Loi initiale donnée en Q5 [cite: 52]
+
+# Exécution Q3
+trajectoire = simulation_chaine(n, mu0, P)
+
+# Affichage graphique Q3
+plt.figure(figsize=(10, 4))
+plt.step(range(n+1), trajectoire, where='post')
+plt.yticks([0, 1, 2], etats_noms)
+plt.title("Trajectoire de la chaîne de Markov (Choix de l'opérateur)")
+plt.xlabel("Mois n")
+plt.grid(True, alpha=0.3)
+plt.show()
+
+# --- QUESTION 4 : Calcul de la loi invariante pi ---
+# On cherche v tel que vP = v <=> P.T v.T = v.T (vecteur propre de P transposée pour lambda=1)
+valeurs_propres, vecteurs_propres = np.linalg.eig(P.T)
+
+# On cherche l'indice de la valeur propre réelle proche de 1
+index_1 = np.argmin(np.abs(valeurs_propres - 1))
+pi_non_norme = np.real(vecteurs_propres[:, index_1])
+
+# Normalisation pour que la somme fasse 1
+pi = pi_non_norme / np.sum(pi_non_norme)
+print(f"Probabilité invariante pi calculée : A={pi[0]:.4f}, B={pi[1]:.4f}, C={pi[2]:.4f}")
+
+# --- QUESTION 5 : Convergence Ergodique ---
+# On utilise une trajectoire longue
+n_long = 10000
+traj_longue = simulation_chaine(n_long, mu0, P)
+
+# Calcul de la moyenne glissante (somme cumulée / nombre de pas)
+indicatrice_A = (traj_longue == 0).astype(int) # 1 si A, 0 sinon
+moyenne_empirique_A = np.cumsum(indicatrice_A) / np.arange(1, n_long + 2)
+
+plt.figure(figsize=(10, 4))
+plt.plot(moyenne_empirique_A, label=r"Moyenne empirique $\bar{p}_{A,n}$")
+plt.axhline(y=pi[0], color='r', linestyle='--', label=r"Limite théorique $\pi_A$")
+plt.title("Illustration du Théorème Ergodique (Convergence vers pi_A)")
+plt.legend()
+plt.show()
+
+# --- QUESTION 6 : Convergence en Loi ---
+# On calcule mu_n = mu0 * P^n et on compare à pi
+dist_l1 = []
+mu_n = mu0.copy()
+
+for k in range(100):
+    # Calcul de la distance L1
+    dist = np.sum(np.abs(mu_n - pi))
+    dist_l1.append(dist)
+    
+    # Mise à jour de la loi: mu_{n+1} = mu_n * P
+    mu_n = np.dot(mu_n, P)
+
+plt.figure(figsize=(10, 4))
+plt.plot(dist_l1)
+plt.title(r"Convergence de la loi $\mu_n$ vers $\pi$ (Distance L1)")
+plt.xlabel("n")
+plt.ylabel(r"$||\mu_0 P^n - \pi||_1$")
+plt.show()
+
+#EXERCICE 2 
+
+# --- QUESTION 1 : Marche aléatoire simple ---
+def ma(x, p, N):
+    """
+    Produit une trajectoire de longueur N issue de x.
+    X_i vaut 1 avec proba p, -1 avec proba 1-p.
+    """
+    pas = np.random.choice([1, -1], size=N, p=[p, 1-p])
+    # S_n = x + somme(pas)
+    trajectoire = np.concatenate(([0], np.cumsum(pas))) + x
+    return trajectoire
+
+# --- QUESTION 2 : Marche avec arrêt en a ou b ---
+def maT(a, b, x, p):
+    """
+    Simule la marche jusqu'à ce qu'elle touche a ou b.
+    Precondition: a < x < b
+    """
+    traj = [x]
+    curr = x
+    while curr > a and curr < b:
+        # Simulation d'un pas
+        step = 1 if np.random.rand() < p else -1
+        curr += step
+        traj.append(curr)
+    return np.array(traj)
+
+# --- QUESTION 3 : Estimation Monte-Carlo ---
+def sortie(a, b, x, p, m):
+    """
+    Estime la probabilité d'atteindre a avant b (sur m simulations).
+    """
+    compteur_succes_a = 0
+    for _ in range(m):
+        traj = maT(a, b, x, p)
+        # Le dernier point est soit a, soit b
+        if traj[-1] == a:
+            compteur_succes_a += 1
+            
+    proportion = compteur_succes_a / m
+    return proportion
+
+def EspT(a, b, x, p, m):
+    """
+    Estime l'espérance du temps d'arrêt T_ab.
+    """
+    total_temps = 0
+    for _ in range(m):
+        traj = maT(a, b, x, p)
+        # La durée est la longueur du tableau - 1 (car traj inclut x0)
+        total_temps += (len(traj) - 1)
+        
+    return total_temps / m
+
+# --- Exemple d'utilisation ---
+# Ruine du joueur : part de 5, gagne en 10, perd en 0. Jeu équitable p=0.5
+proba_ruine = sortie(0, 10, 5, 0.5, 1000) 
+temps_moyen = EspT(0, 10, 5, 0.5, 1000)
+
+print(f"Estimation Proba(atteindre 0 avant 10) partant de 5 (p=0.5) : {proba_ruine}")
+print(f"Théorie (p=0.5) : (10-5)/10 = 0.5")
+print(f"Temps moyen estimé : {temps_moyen}")
+print(f"Théorie (p=0.5) : x(b-x) = 5*5 = 25")
+
+
+#EXERCICE 3 
+
+# --- QUESTION 1 : Marche 2D ---
+def maZ2(probs, N):
+    """
+    Produit une trajectoire 2D de longueur N partant de (0,0).
+    probs: liste [p1, p2, p3, p4] pour (1,0), (-1,0), (0,1), (0,-1)
+    """
+    # Définition des déplacements possibles
+    moves = np.array([
+        [1, 0],  # Droite
+        [-1, 0], # Gauche
+        [0, 1],  # Haut
+        [0, -1]  # Bas
+    ])
+    
+    # Choix des indices de mouvement (0, 1, 2 ou 3)
+    choix_indices = np.random.choice([0, 1, 2, 3], size=N, p=probs)
+    
+    # Récupération des vecteurs déplacements correspondants
+    pas = moves[choix_indices]
+    
+    # Somme cumulée (axis=0 pour sommer verticalement pas à pas)
+    traj = np.vstack(([0, 0], np.cumsum(pas, axis=0)))
+    
+    return traj
+
+# --- QUESTION 2 : Graphiques et Analyse ---
+
+# Cas 1: Symétrique (Récurrent)
+p_sym = [0.25, 0.25, 0.25, 0.25]
+traj_sym = maZ2(p_sym, 5000)
+
+# Cas 2: Asymétrique (Transient - Dérive vers la droite et le haut)
+p_asym = [0.4, 0.2, 0.3, 0.1] # Tendance Droite (0.4>0.2) et Haut (0.3>0.1)
+traj_asym = maZ2(p_asym, 5000)
+
+plt.figure(figsize=(12, 6))
+
+# Plot Symétrique
+plt.subplot(1, 2, 1)
+plt.plot(traj_sym[:, 0], traj_sym[:, 1], linewidth=0.5, alpha=0.8)
+plt.plot(0, 0, 'ro', label="Départ (0,0)") # Point de départ
+plt.plot(traj_sym[-1, 0], traj_sym[-1, 1], 'go', label="Fin") # Fin
+plt.title("Marche symétrique (Récurrente)\nLa marche revient 'souvent' près de 0")
+plt.axis('equal')
+plt.legend()
+plt.grid(True)
+
+# Plot Asymétrique
+plt.subplot(1, 2, 2)
+plt.plot(traj_asym[:, 0], traj_asym[:, 1], linewidth=0.5, alpha=0.8, color='orange')
+plt.plot(0, 0, 'ro')
+plt.plot(traj_asym[-1, 0], traj_asym[-1, 1], 'go')
+plt.title("Marche asymétrique (Transiente)\nDérive vers l'infini")
+plt.axis('equal')
+plt.grid(True)
+
+plt.show()
+
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+###########################################################################################################################
+
+#TP6
+import numpy as np
+import scipy.stats as st
+import matplotlib.pyplot as plt
+import time
+
+
+#%% Pour les deux exercices
+def h(u):
+    h=min(u,1)
+    #h=u/(1+u)
+    return h
+
+
+
+#%%
+## Exercice 1
+#############
+
+
+def MH_poisson(lambd, nb_iter=1000):
+    """
+    Simule une loi de Poisson de paramètre lambda_ avec Metropolis-Hastings.
+
+    Variables :
+    lambda : Paramètre de la loi de Poisson
+    m : Nombre de valeurs simulées
+
+    Renvoi :
+    X : simulation d une v.a. de loi de Poisson de parametre lambd
+    """
+
+    X = int(lambd)  # État initial
+    for _ in range(nb_iter):
+        # Proposer un nouvel état selon le noyau de transition
+        proposition = max(0, X +2*(st.uniform.rvs()<0.5)-1)
+        # Calcul du taux d'acceptation
+        if proposition>X:
+            alpha = h(lambd/proposition)
+        else:
+             alpha = h(X/lambd)
+        # Accepter ou rejeter la proposition
+        if st.uniform.rvs() < alpha:
+            X = proposition
+    return X
+
+
+#%%
+lambd = 5  # Paramètre de la loi de Poisson
+nb_sim = 1000 #Nb de simulations realisees
+nb_iter=1000 #Nb iterations a chaque simulation
+res=[]
+for _ in range(nb_sim):
+    res.append(MH_poisson(lambd,nb_iter))
+
+res = np.bincount(res,minlength=11)/nb_sim #Proportion obtenue
+
+Vmax=len(res) #Valeur max obtenue
+# probabilites théoriques
+theo = [st.poisson.pmf(k,lambd) for k in range(Vmax)]
+
+plt.figure()
+plt.ylim(0,max(theo)*1.5)
+# Creation du diagramme en batons
+
+x = np.arange(Vmax)  # Position des bâtons
+
+# Diagramme des valeurs simulées
+plt.bar(x - 0.2, res, width=0.4, label='Proportions simulees', color='b')
+
+# Diagramme des valeurs théoriques
+plt.bar(x + 0.2, theo, width=0.4, label='Probabilités theoriques', color='r', alpha=0.7)
+
+
+plt.xlabel("Valeurs")
+plt.title(f"Simulation de la loi de Poisson ($\lambda={lambd}$) avec Metropolis-Hastings, Nb_iter={nb_iter}")
+plt.legend()
+plt.show()
+
+
+#%%
+## Exercice 2
+#############
+
+
+def inv_spin(x, m):
+    """
+    Inverse le spin à la position m dans la configuration x.
+
+    Arguments:
+        x : Configuration actuelle
+        m (tuple): Indices du spin à inverser (ligne, colonne).
+
+    Retour:
+        np.ndarray: Nouvelle configuration avec le spin à m inversé.
+    """
+    x_m = x.copy()
+    x_m[m] *= -1
+    return x_m
+
+def delta_H(x, m):
+    """
+    Calcule la différence d'énergie H(x^m) - H(x) pour un spin m.
+
+    Args:
+        x (np.ndarray): Configuration actuelle, tableau 2D contenant -1 et 1.
+        m (tuple): Indices du spin (ligne, colonne).
+
+    Returns:
+        d: Différence d'énergie.
+    """
+    N = x.shape[0]
+    i, j = m
+    #Construction du voisinage du point m, attention aux bords !
+    voisinage=[]
+    if i<N-1: 
+        voisinage.append((i+1,j))
+    if i >0 :
+        voisinage.append((i-1,j))
+    if j<N-1: 
+        voisinage.append((i,j+1))
+    if j >0 :
+        voisinage.append((i,j-1))
+        
+    return 4 * x[m] * sum(x[n] for n in voisinage)
+
+def MH(N, T, nb_iter):
+    """
+    Simule une configuration selon la loi de Boltzmann en utilisant Metropolis-Hastings.
+    
+    Arguments:
+        N : Taille du réseau (C_N est de taille NxN).
+        T : Température.
+        nb_iter : Nombre d'itérations de l'algorithme.
+    
+    Retours:
+        x : Configuration finale.
+    """
+    # Initialisation : 
+    x0 = np.random.choice([-1, 1], size=(N, N)) #configuration aléatoire i.i.d. uniforme
+    x0 = np.array([2*(i%2)-1 for i in range(N**2)]).reshape(N, N)
+    x0 = np.array([-1 for i in range(int((N**2)/2))]+[1 for i in range(int((N**2)/2))]).reshape(N, N)
+    x=x0.copy()
+    u=st.uniform.rvs(size=nb_iter) # alea pour l acceptation des propositions
+    
+    for i in range(nb_iter):
+        # Tirage aléatoire du spin à inverser
+        m = tuple(st.randint.rvs(size=2,low=0,high=N)) #il serait plus efficace de produrie en une fois les indices de tous les spins mais le code est plus clair si presente comme cela
+        
+        # Calcul de delta_H
+        dH = delta_H(x, m)
+        
+        # Probabilité d'accepter le mouvement
+        alpha = h( np.exp(-dH / T))
+        
+        # inversion du spin si acceptation de la proposition
+        if u[i] < alpha:
+            x =inv_spin(x, m)
+        #Comparaison etat initial et etat courant
+        if (i+1)%100==0: # On affiche une transition sur 20 pour ne pas tro pralentir l'algorithme
+            time.sleep(0.01)
+            plot_config(x0, x, i+1)
+    
+    return x
+
+#Representation graphique
+
+def plot_config(x0, x, etape):
+    """
+    Compare deux configurations du reseau.
+    
+    Arguments:
+        x0 : Configuration initiale
+        x : Configuration courante.
+        etape : Numero de l'étape (pour le titre).
+    """
+
+    fig, axes = plt.subplots(1, 2, figsize=(10, 5))
+    axes[0].imshow(x0, cmap='gray',aspect='equal')
+    axes[0].set_title("Etat initial")
+    axes[0].axis("off")
+    axes[1].imshow(x, cmap='gray',aspect='equal')
+    axes[1].set_title(f"Evolution à l'étape {etape}")
+    axes[1].axis("off")
+    plt.show()
+
+nb_iter=100000
+
+x=MH(100,4,nb_iter)
+
+
+#%%
+# Question 2
+
+def MHb(N, T, nb_iter):
+    """
+    Simule une configuration selon la loi de Boltzmann en utilisant Metropolis-Hastings.
+    
+    Arguments:
+        N : Taille du réseau (C_N est de taille NxN).
+        T : Température.
+        nb_iter : Nombre d'itérations de l'algorithme.
+    
+    Retours:
+        x : Configuration finale.
+    """
+    # Initialisation : 
+    x0 = np.random.choice([-1, 1], size=(N, N)) #configuration aléatoire i.i.d. uniforme
+    #x0 = np.array([2*(i%2)-1 for i in range(N**2)]).reshape(N, N)
+    x=x0.copy()
+    v=st.uniform.rvs(size=nb_iter) # alea pour le choix entre X^+ et X^-
+    
+    for k in range(nb_iter):
+        if v[k] < 0.5:
+            # Mise à jour de X^+
+            for i in range(0, N, 2):
+                for j in range(0, N, 2):
+                    voisinage=[]
+                    if i<N-1: 
+                        voisinage.append((i+1,j))
+                    if i >0 :
+                        voisinage.append((i-1,j))
+                    if j<N-1: 
+                        voisinage.append((i,j+1))
+                    if j >0 :
+                        voisinage.append((i,j-1))
+                    somme_vois = sum(x[n] for n in voisinage )
+                    prob_plus = 1 / (1 + np.exp(-4 * somme_vois/T))
+                    x[i, j] = 2*(st.uniform.rvs()<prob_plus)-1
+        else:
+            # Mise à jour de X^-
+            for i in range(1, N, 2):
+                for j in range(1, N, 2):
+                    voisinage=[]
+                    if i<N-1: 
+                        voisinage.append((i+1,j))
+                    if i >0 :
+                        voisinage.append((i-1,j))
+                    if j<N-1: 
+                        voisinage.append((i,j+1))
+                    if j >0 :
+                        voisinage.append((i,j-1))
+                    somme_vois = sum(x[n] for n in voisinage )
+                    prob_plus = 1 / (1 + np.exp(-4 * somme_vois/T))
+                    x[i, j] = 2*(st.uniform.rvs()<prob_plus)-1
+    plot_config(x0, x, nb_iter)
+    return x
+
+nb_iter=200
+x=MHb(100,1,nb_iter)
