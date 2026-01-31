@@ -32,7 +32,7 @@ Most files are standalone scripts or Jupyter Notebooks meant for educational exp
 
 ```bash
 # Clone the repository
-git clone [https://github.com/OWMarko/Resources_for_Numerical_Analysis.git](https://github.com/OWMarko/Resources_for_Numerical_Analysis.git)
+git clone https://github.com/OWMarko/Resources_for_Numerical_Analysis.git
 
 # Run a specific script
 python script_name.py
