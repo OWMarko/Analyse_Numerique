@@ -1,41 +1,23 @@
-# Resources for Numerical Analysis
+# Academic Pedagogy & Technical Resources
 
-> **Personal Sandbox & Knowledge Base**
-> **Language:** Python (NumPy, SciPy, Matplotlib)
+This repository contains pedagogical materials and academic documentation developed for undergraduate students in Mathematics and Computer Science. The content primarily supports my work as a mentor and instructor within the Google Developer Groups (GDG) on Campus framework.
 
-This repository serves as a collection of **reference implementations**, snippets, and educational scripts related to Numerical Analysis. It acts as a digital notebook where I test algorithms, visualize numerical schemes, and verify theoretical concepts before applying them in more complex C++/HPC projects.
+## Repository Structure
 
-### Repository Content
+### 1. Undergraduate Curriculum (`/undergraduate-curriculum`)
+Comprehensive revision sheets and exercise sets focusing on fundamental Mathematics and Computer Science.
+* **Lecture Summaries:** Summarized theory for Analysis, Algebra, and Discrete Mathematics.
+* **Exercise Sets:** Selected problems with detailed solutions emphasizing proof techniques.
 
-The scripts and notebooks cover various standard topics in applied mathematics:
+### 2. Examination Frameworks (`/examination-frameworks`)
+Materials designed for student assessment and the preparation of oral examinations.
+* **Oral Exam Prompts:** Technical questions used to evaluate logical reasoning and theoretical depth.
+* **Evaluation Methodology:** Guidelines on academic rigor, clarity of speech, and mathematical demonstration standards.
 
-#### ODE Solvers & Schemes
-Implementation and stability testing of time-stepping methods:
-* **Basic Schemes :** Forward/Backward Euler, Crank-Nicolson
-* **Runge-Kutta :** RK4 implementations
-* **Stability Analysis :** Scripts to plot stability regions
+### 3. Guided Technical Projects (`/guided-technical-projects`)
+Project-based learning resources designed to bridge the gap between classroom theory and practical implementation.
+* **Modeling Case Studies:** Briefs for projects involving differential equations and numerical simulations.
+* **Implementation Guides:** Documentation for developing algorithmic solutions with a focus on code efficiency and structure.
 
-#### Numerical Integration (Quadrature)
-* Trapezoidal rule & Simpson's method
-* Gaussian quadrature implementations
-* Error estimation analysis
 
-#### Root Finding & Optimization
-* Newton-Raphson method (convergence tests)
-* Bisection and Secant methods
-* Gradient Descent basic implementation
-
---
-
-### Usage
-Most files are standalone scripts or Jupyter Notebooks meant for educational exploration.
-
-```bash
-# Clone the repository
-git clone https://github.com/OWMarko/Resources_for_Numerical_Analysis.git
-
-# Run a specific script
-python script_name.py
-```
-
-These codes are written for educational purposes to illustrate mathematical concepts. They prioritize readability and theoretical clarity over performance optimization.
+*For further information regarding my technical projects in Numerical Modeling or HPC, please refer to my specific project repositories.*
